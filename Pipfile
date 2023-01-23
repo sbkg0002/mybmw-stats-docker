@@ -8,6 +8,9 @@ bimmer-connected = "*"
 asyncio = "*"
 tabulate = "*"
 geopy = "*"
+datetime = "*"
+pytz = "*"
+argparse = "*"
 
 [dev-packages]
 
