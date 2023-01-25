@@ -3,7 +3,7 @@
 import argparse
 import os
 from asyncio import run as asyncrun
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from bimmer_connected.account import MyBMWAccount
 from bimmer_connected.api.regions import Regions
@@ -28,6 +28,13 @@ def _get_address_for_gps(latitude: str, longitude: str):
     return loc.address
 
 
+def strfdelta(tdelta, fmt):
+    d = {"days": tdelta.days}
+    d["hours"], rem = divmod(tdelta.seconds, 3600)
+    d["minutes"], d["seconds"] = divmod(rem, 60)
+    return fmt.format(**d)
+
+
 # Connect
 account = MyBMWAccount(bmw_username, bmw_pw, Regions.REST_OF_WORLD)
 asyncrun(account.get_vehicles())
@@ -40,7 +47,7 @@ battery_percentage = battery.remaining_battery_percent
 if charge_status == 'CHARGING':
     offset = timezone('Europe/Amsterdam')
     remaining_time = battery.charging_end_time - datetime.now(offset)
-    battery_status = f"{battery_percentage}%: {battery.charging_end_time}"
+    battery_status = f"{battery_percentage}% {strfdelta(remaining_time, '{hours}:{minutes}')}"
 else:
     battery_status = f"{battery_percentage}%"
 
@@ -52,7 +59,7 @@ location = car.vehicle_location.location
 
 table = [["Car", f"{(car.brand.value).upper()} {car.name} ({locked_state})"],
          ["Battery",
-             f"{battery_percentage.numerator}% ({charge_status})"],
+             f"{battery_status} ({charge_status})"],
          ["Location", _get_address_for_gps(
              latitude=location.latitude, longitude=location.longitude)]
          ]
