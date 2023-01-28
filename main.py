@@ -18,6 +18,9 @@ bmw_vin = os.environ['BMW_VIN']
 parser = argparse.ArgumentParser()
 parser.add_argument("-ac", help="Turn AC or heating on/off.",
                     choices=['on', 'off'])
+parser.add_argument("-b", "-battery",  action="store_true", dest="battery_stats",
+                    help="Show battery/charge stats.", default=True)
+parser.add_argument("-l", "-location", action="store_true", dest="car_location", help="Show car location.")
 args = parser.parse_args()
 
 
@@ -57,13 +60,13 @@ if car.doors_and_windows.door_lock_state == 'SECURED':
 
 location = car.vehicle_location.location
 
-table = [["Car", f"{(car.brand.value).upper()} {car.name} ({locked_state})"],
-         ["Battery",
-             f"{battery_status} ({charge_status})"],
-         ["Location", _get_address_for_gps(
-             latitude=location.latitude, longitude=location.longitude)]
-         ]
-print(tabulate(table))
+output_table = [["Car", f"{(car.brand.value).upper()} {car.name} ({locked_state})"]]
+if args.battery_stats:
+    output_table.append(["Battery", f"{battery_status} ({charge_status})"])
+if args.car_location:
+    output_table.append(["Location", _get_address_for_gps(latitude=location.latitude, longitude=location.longitude)])
+
+print(tabulate(output_table))
 
 # AC
 if args.ac == 'on':
