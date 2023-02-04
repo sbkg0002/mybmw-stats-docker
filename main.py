@@ -45,6 +45,7 @@ car = account.get_vehicle(bmw_vin)
 battery = car.fuel_and_battery
 charge_status = battery.charging_status.value
 battery_percentage = battery.remaining_battery_percent
+remaining_range = battery.remaining_range_electric.value
 
 # Extra information if charging
 if charge_status == 'CHARGING':
@@ -52,7 +53,7 @@ if charge_status == 'CHARGING':
     remaining_time = battery.charging_end_time - datetime.now(offset)
     battery_status = f"{battery_percentage}% {strfdelta(remaining_time, '{hours}:{minutes}')}"
 else:
-    battery_status = f"{battery_percentage}%"
+    battery_status = f"{battery_percentage}% ({remaining_range}km)"
 
 locked_state = 'Unlocked'
 if car.doors_and_windows.door_lock_state == 'SECURED':
